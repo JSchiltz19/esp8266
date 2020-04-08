@@ -116,12 +116,19 @@ void setup() {
 
 void loop() { 
 
+byte colors[3][3] = { {0xff, 0,    0},
+                      {0xff, 0xff, 0xff},
+                      {0   , 0   , 0xff} 
+                    };
+
+  BouncingColoredBalls(3, colors);
+  /*
   cycleColors(1,15,128);
  
   FadeLED(2,5,128);
   
   crossFade(1,15,128);
-
+*/
 }
 
 void resetLEDArray(){
@@ -162,7 +169,7 @@ uint16_t Fletcher16( uint8_t *data, int count ){
    return (sum2 << 8) | sum1;
 }
 
-void updateLEDs(){
+void showStrip(){
   //resetRGB();
   
   for(int i = NUM_LEDS-1; i >= 0; i--){
@@ -170,11 +177,22 @@ void updateLEDs(){
   writeColorRGB(ledR[i]);
   writeColorRGB(ledG[i]);
   }
-
 }
 
+void setPixel(int pixel, byte r, byte g,  byte b){
+  ledR[pixel] = r;
+  ledG[pixel] = g;
+  ledB[pixel] = b;
+}
 
-
+void setAll(byte r, byte g, byte b){
+  for(int pixel = NUM_LEDS-1; pixel >= 0; pixel--){
+    ledR[pixel] = r;
+    ledG[pixel] = g;
+    ledB[pixel] = b;
+  }
+  showStrip();  
+}
 void writeColorRGB(byte Color){
 
   noInterrupts();                         // disable interrupts to maintain timing
@@ -217,6 +235,50 @@ GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, GPIO_REG_READ(GPIO_OUT_ADDRESS) | LED_PIN)
 delayMicroseconds(79);      //has 20 ticks behind
 }
 
+void rainbow(byte _step, byte _delay, byte _brightness){
+
+  resetLEDArray();
+
+  if(_step <= 0) _step = 1;
+  if(_delay <= 0) _delay = 10;
+  if(_brightness <= 0) _brightness = 128;
+  byte ledR_2[_brightness*3];
+  byte ledG_2[_brightness*3];
+  byte ledB_2[_brightness*3];
+
+  for(uint32_t i = 0; i <= _brightness; i += _step){
+    // change the values of the LEDs
+    for (int j = 0; j < NUM_LEDS; j++) {
+      ledR[j] = i;
+      ledG[j] = _brightness - i;
+      ledB[j] = 0;
+    }
+    showStrip();
+    delay(_delay);
+  }
+  for(uint32_t i = 0; i <= _brightness; i += _step){
+    // change the values of the LEDs
+    for (int j = 0; j < NUM_LEDS; j++) {
+      ledR[j] = _brightness - i;
+      ledG[j] = 0;
+      ledB[j] = i;
+    }
+    showStrip();
+    delay(_delay);
+  }
+  for(uint32_t i = 0; i <= _brightness; i += _step){
+    // change the values of the LEDs
+    for (int j = 0; j < NUM_LEDS; j++) {
+      ledR[j] = 0;
+      ledG[j] = i;
+      ledB[j] = _brightness - i;
+    }
+    showStrip();
+    delay(_delay);
+  }
+
+
+}
 
 void cycleColors(byte _step, byte _delay, byte _brightness){
   resetLEDArray();
@@ -229,21 +291,21 @@ void cycleColors(byte _step, byte _delay, byte _brightness){
     ledR[i] = _brightness;
     ledG[i] = 0;
     ledB[i] = 0;
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
   for (int i = 0; i < NUM_LEDS; i++) {
     ledR[i] = 0;
     ledG[i] = 0;
     ledB[i] = _brightness;
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
   for (int i = 0; i < NUM_LEDS; i++) {
     ledR[i] = 0;
     ledG[i] = _brightness;
     ledB[i] = 0;
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
 }
@@ -260,46 +322,45 @@ void FadeLED(byte _step, byte _delay, byte _brightness){
     for (int j = 0; j < NUM_LEDS; j++) {
       ledR[j] = i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
   for(uint32_t i = _brightness; i >=1 ; i -= _step){ 
     for (int j = 0; j < NUM_LEDS; j++) {
       ledR[j] = i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
   for(uint32_t i = 0; i <= _brightness; i += _step){ 
     for (int j = 0; j < NUM_LEDS; j++) {
       ledG[j] = i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
   for(uint32_t i = _brightness; i >=1 ; i -= _step){ 
     for (int j = 0; j < NUM_LEDS; j++) {
       ledG[j] = i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
   for(uint32_t i = 0; i <= _brightness; i += _step){ 
     for (int j = 0; j < NUM_LEDS; j++) {
       ledB[j] = i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
   for(uint32_t i = _brightness; i >=1 ; i -= _step){ 
     for (int j = 0; j < NUM_LEDS; j++) {
       ledB[j] = i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
 }
-
 
 void crossFade(byte _step, byte _delay, byte _brightness) {
   resetLEDArray();
@@ -308,34 +369,81 @@ void crossFade(byte _step, byte _delay, byte _brightness) {
   if(_delay <= 0) _delay = 10;
   if(_brightness <= 0) _brightness = 128;
 
-  for(uint32_t i = 0; i <= _brightness; i += _step){ //number of time I want it to fade
+  for(uint32_t i = 0; i <= _brightness; i += _step){
     // change the values of the LEDs
     for (int j = 0; j < NUM_LEDS; j++) {
       ledR[j] = i;
       ledG[j] = _brightness - i;
       ledB[j] = 0;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
-  for(uint32_t i = 0; i <= _brightness; i += _step){ //number of time I want it to fade
+  for(uint32_t i = 0; i <= _brightness; i += _step){
     // change the values of the LEDs
     for (int j = 0; j < NUM_LEDS; j++) {
       ledR[j] = _brightness - i;
       ledG[j] = 0;
       ledB[j] = i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
   }
-  for(uint32_t i = 0; i <= _brightness; i += _step){ //number of time I want it to fade
+  for(uint32_t i = 0; i <= _brightness; i += _step){
     // change the values of the LEDs
     for (int j = 0; j < NUM_LEDS; j++) {
       ledR[j] = 0;
       ledG[j] = i;
       ledB[j] = _brightness - i;
     }
-    updateLEDs();
+    showStrip();
     delay(_delay);
+  }
+}
+
+void BouncingColoredBalls(int BallCount, byte colors[][3]) {
+  float Gravity = -9.81;
+  int StartHeight = 1;
+ 
+  float Height[BallCount];
+  float ImpactVelocityStart = sqrt( -2 * Gravity * StartHeight );
+  float ImpactVelocity[BallCount];
+  float TimeSinceLastBounce[BallCount];
+  int   Position[BallCount];
+  long  ClockTimeSinceLastBounce[BallCount];
+  float Dampening[BallCount];
+ 
+  for (int i = 0 ; i < BallCount ; i++) {  
+    ClockTimeSinceLastBounce[i] = millis();
+    Height[i] = StartHeight;
+    Position[i] = 0;
+    ImpactVelocity[i] = ImpactVelocityStart;
+    TimeSinceLastBounce[i] = 0;
+    Dampening[i] = 0.90 - float(i)/pow(BallCount,2);
+  }
+
+  while (true) {
+    for (int i = 0 ; i < BallCount ; i++) {
+      TimeSinceLastBounce[i] =  millis() - ClockTimeSinceLastBounce[i];
+      Height[i] = 0.5 * Gravity * pow( TimeSinceLastBounce[i]/1000 , 2.0 ) + ImpactVelocity[i] * TimeSinceLastBounce[i]/1000;
+ 
+      if ( Height[i] < 0 ) {                      
+        Height[i] = 0;
+        ImpactVelocity[i] = Dampening[i] * ImpactVelocity[i];
+        ClockTimeSinceLastBounce[i] = millis();
+ 
+        if ( ImpactVelocity[i] < 0.01 ) {
+          ImpactVelocity[i] = ImpactVelocityStart;
+        }
+      }
+      Position[i] = round( Height[i] * (NUM_LEDS - 1) / StartHeight);
+    }
+ 
+    for (int i = 0 ; i < BallCount ; i++) {
+      setPixel(Position[i],colors[i][0],colors[i][1],colors[i][2]);
+    }
+   
+    showStrip();
+    setAll(0,0,0);
   }
 }
