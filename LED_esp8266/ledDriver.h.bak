@@ -12,6 +12,11 @@ class ledDriver{
 	public:
 		ledDriver(){ //Constructor empty for now
     }
+    //////////////////////////////
+    uint8_t ledR[NUM_LEDS];
+		uint8_t ledG[NUM_LEDS];
+		uint8_t ledB[NUM_LEDS];
+    /////////////////////////////
 		void resetLEDArray();
 		void showStrip();
 		void setPixel(int pixel, uint8_t r, uint8_t g,  uint8_t b);
@@ -19,9 +24,7 @@ class ledDriver{
 		void setAll(uint8_t r, uint8_t g, uint8_t b);
 
 	private:
-		uint8_t ledR[NUM_LEDS];
-		uint8_t ledG[NUM_LEDS];
-		uint8_t ledB[NUM_LEDS];
+
 		void writePixel(uint8_t Color);
 		void reset();
 };

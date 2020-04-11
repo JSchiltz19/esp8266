@@ -98,8 +98,8 @@ PERIPHS_IO_MUX_MTDO_U     /* 15 - D8
 
 void ledDriver::resetLEDArray(){ 
   for(uint32_t i = 0; i < NUM_LEDS; i++){
-	ledB[i] = 0;
-	ledR[i] = 0;
+	ledDriver::ledB[i] = 0;
+	ledDriver::ledR[i] = 0;
 	ledB[i] = 0;
   }
 }

@@ -4,7 +4,7 @@
 //#define NUM_LEDS 100;
 
 void setup() {
-  effect ledStrip;
+  effect ledStrip = new effect();
   Serial.begin(115200);
   pinMode(D8, OUTPUT);
 

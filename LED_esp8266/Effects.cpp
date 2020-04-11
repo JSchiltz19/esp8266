@@ -1,9 +1,173 @@
 
+#include "Effects.h"
+
+#define Num_OF_EFFECTS 18
+
+uint8_t effect::setEffect(uint8_t effect) { 
+
+//TODO: move to .cpp
+//TODO: put inside of some loop
+  selectedEffect = effect;
+  
+  EEPROM.get(0,selectedEffect); 
+  
+  if(selectedEffect > Num_OF_EFFECTS) { 
+    selectedEffect = 0;
+    EEPROM.put(0,0); 
+  } 
+  switch(selectedEffect) {
+    
+    case 0  : {
+                // RGBLoop - no parameters
+                RGBLoop();
+                break;
+              }
+
+    case 1  : {
+                // FadeInOut - Color (red, white. blue)
+                FadeInOut(0xff, 0x00, 0x00); // red
+                FadeInOut(0xff, 0xff, 0xff); // white 
+                FadeInOut(0x00, 0x00, 0xff); // blue
+                break;
+              }
+              
+    case 2  : {
+                // Strobe - Color (red, green, blue), number of flashes, flash speed, end pause
+                Strobe(0xff, 0xff, 0xff, 10, 50, 1000);
+                break;
+              }
+
+    case 3  : {
+                // HalloweenEyes - Color (red, green, blue), Size of eye, space between eyes, fade (true/false), steps, fade delay, end pause
+                HalloweenEyes(0xff, 0x00, 0x00, 
+                              1, 4, 
+                              true, random(5,50), random(50,150), 
+                              random(1000, 10000));
+                HalloweenEyes(0xff, 0x00, 0x00, 
+                              1, 4, 
+                              true, random(5,50), random(50,150), 
+                              random(1000, 10000));
+                break;
+              }
+              
+    case 4  : {
+                // CylonBounce - Color (red, green, blue), eye size, speed delay, end pause
+                CylonBounce(0xff, 0x00, 0x00, 4, 10, 50);
+                break;
+              }
+              
+    case 5  : {
+                // NewKITT - Color (red, green, blue), eye size, speed delay, end pause
+                NewKITT(0xff, 0x00, 0x00, 8, 10, 50);
+                break;
+              }
+              
+    case 6  : {
+                // Twinkle - Color (red, green, blue), count, speed delay, only one twinkle (true/false) 
+                Twinkle(0xff, 0x00, 0x00, 10, 100, false);
+                break;
+              }
+              
+    case 7  : { 
+                // TwinkleRandom - twinkle count, speed delay, only one (true/false)
+                TwinkleRandom(20, 100, false);
+                break;
+              }
+              
+    case 8  : {
+                // Sparkle - Color (red, green, blue), speed delay
+                Sparkle(0xff, 0xff, 0xff, 0);
+                break;
+              }
+               
+    case 9  : {
+                // SnowSparkle - Color (red, green, blue), sparkle delay, speed delay
+                SnowSparkle(0x10, 0x10, 0x10, 20, random(100,1000));
+                break;
+              }
+              
+    case 10 : {
+                // Running Lights - Color (red, green, blue), wave dealy
+                RunningLights(0xff,0x00,0x00, 50);  // red
+                RunningLights(0xff,0xff,0xff, 50);  // white
+                RunningLights(0x00,0x00,0xff, 50);  // blue
+                break;
+              }
+              
+    case 11 : {
+                // colorWipe - Color (red, green, blue), speed delay
+                colorWipe(0x00,0xff,0x00, 50);
+                colorWipe(0x00,0x00,0x00, 50);
+                break;
+              }
+
+    case 12 : {
+                // rainbowCycle - speed delay
+                rainbowCycle(20);
+                break;
+              }
+
+    case 13 : {
+                // theatherChase - Color (red, green, blue), speed delay
+                theaterChase(0xff,0,0,50);
+                break;
+              }
+
+    case 14 : {
+                // theaterChaseRainbow - Speed delay
+                theaterChaseRainbow(50);
+                break;
+              }
+
+    case 15 : {
+                // Fire - Cooling rate, Sparking rate, speed delay
+                Fire(55,120,15);
+                break;
+              }
+
+
+                // simple bouncingBalls not included, since BouncingColoredBalls can perform this as well as shown below
+                // BouncingColoredBalls - Number of balls, color (red, green, blue) array, continuous
+                // CAUTION: If set to continuous then this effect will never stop!!! 
+
+    case 16 : {
+                // mimic BouncingBalls
+                uint8_t onecolor[1][3] = { {0xff, 0x00, 0x00} };
+                BouncingColoredBalls(1, onecolor, false);
+                break;
+              }
+
+    case 17 : {
+                // multiple colored balls
+                uint8_t colors[3][3] = { {0xff, 0x00, 0x00}, 
+									  {0xff, 0xff, 0xff}, 
+									  {0x00, 0x00, 0xff} };
+                BouncingColoredBalls(3, colors, false);
+                break;
+              }
+
+    case 18 : {
+                // meteorRain - Color (red, green, blue), meteor size, trail decay, random trail decay (true/false), speed delay 
+                meteorRain(0xff,0xff,0xff,10, 64, true, 30);
+                break;
+              }
+  }
+  return selectedEffect;
+}
+
+void effect::changeEffect() {
+  if (digitalRead (BUTTON) == HIGH) {
+    selectedEffect++;
+    EEPROM.put(0, selectedEffect);
+    asm volatile ("  jmp 0");
+  }
+}
+
 // *************************
 // ** LEDEffect Functions **
 // *************************
 
-void RGBLoop(){
+void effect::RGBLoop(){
   for(int j = 0; j < 3; j++ ) { 
     // Fade IN
     for(int k = 0; k < 256; k++) { 
@@ -28,7 +192,7 @@ void RGBLoop(){
   }
 }
 
-void FadeInOut(byte red, byte green, byte blue){
+void effect::fadeInOut(uint8_t red, uint8_t green, uint8_t blue){
   float r, g, b;
       
   for(int k = 0; k < 256; k=k+1) { 
@@ -48,7 +212,7 @@ void FadeInOut(byte red, byte green, byte blue){
   }
 }
 
-void Strobe(byte red, byte green, byte blue, int StrobeCount, int FlashDelay, int EndPause){
+void effect::strobe(uint8_t red, uint8_t green, uint8_t blue, int StrobeCount, int FlashDelay, int EndPause){
   for(int j = 0; j < StrobeCount; j++) {
     setAll(red,green,blue);
     showStrip();
@@ -61,7 +225,7 @@ void Strobe(byte red, byte green, byte blue, int StrobeCount, int FlashDelay, in
  delay(EndPause);
 }
 
-void HalloweenEyes(byte red, byte green, byte blue, 
+void effect::halloweenEyes(uint8_t red, uint8_t green, uint8_t blue, 
                    int EyeWidth, int EyeSpace, 
                    boolean Fade, int Steps, int FadeDelay,
                    int EndPause){
@@ -101,7 +265,7 @@ void HalloweenEyes(byte red, byte green, byte blue,
   delay(EndPause);
 }
 
-void CylonBounce(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay){
+void effect::cylonBounce(uint8_t red, uint8_t green, uint8_t blue, int EyeSize, int SpeedDelay, int ReturnDelay){
 
   for(int i = 0; i < NUM_LEDS-EyeSize-2; i++) {
     setAll(0,0,0);
@@ -130,19 +294,19 @@ void CylonBounce(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, i
   delay(ReturnDelay);
 }
 
-void NewKITT(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay){
-  RightToLeft(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
-  LeftToRight(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
-  OutsideToCenter(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
-  CenterToOutside(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
-  LeftToRight(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
-  RightToLeft(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
-  OutsideToCenter(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
-  CenterToOutside(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+void effect::newKITT(uint8_t red, uint8_t green, uint8_t blue, int EyeSize, int SpeedDelay, int ReturnDelay){
+  rightToLeft(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+  leftToRight(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+  outsideToCenter(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+  centerToOutside(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+  leftToRight(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+  rightToLeft(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+  outsideToCenter(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
+  centerToOutside(red, green, blue, EyeSize, SpeedDelay, ReturnDelay);
 }
 
 // used by NewKITT
-void CenterToOutside(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
+void effect::centerToOutside(uint8_t red, uint8_t green, uint8_t blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
   for(int i =((NUM_LEDS-EyeSize)/2); i>=0; i--) {
     setAll(0,0,0);
     
@@ -165,7 +329,7 @@ void CenterToOutside(byte red, byte green, byte blue, int EyeSize, int SpeedDela
 }
 
 // used by NewKITT
-void OutsideToCenter(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
+void effect::outsideToCenter(uint8_t red, uint8_t green, uint8_t blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
   for(int i = 0; i<=((NUM_LEDS-EyeSize)/2); i++) {
     setAll(0,0,0);
     
@@ -188,7 +352,7 @@ void OutsideToCenter(byte red, byte green, byte blue, int EyeSize, int SpeedDela
 }
 
 // used by NewKITT
-void LeftToRight(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
+void effect::leftToRight(uint8_t red, uint8_t green, uint8_t blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
   for(int i = 0; i < NUM_LEDS-EyeSize-2; i++) {
     setAll(0,0,0);
     setPixel(i, red/10, green/10, blue/10);
@@ -203,7 +367,7 @@ void LeftToRight(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, i
 }
 
 // used by NewKITT
-void RightToLeft(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
+void effect::rightToLeft(uint8_t red, uint8_t green, uint8_t blue, int EyeSize, int SpeedDelay, int ReturnDelay) {
   for(int i = NUM_LEDS-EyeSize-2; i > 0; i--) {
     setAll(0,0,0);
     setPixel(i, red/10, green/10, blue/10);
@@ -217,7 +381,7 @@ void RightToLeft(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, i
   delay(ReturnDelay);
 }
 
-void Twinkle(byte red, byte green, byte blue, int Count, int SpeedDelay, boolean OnlyOne) {
+void effect::twinkle(uint8_t red, uint8_t green, uint8_t blue, int Count, int SpeedDelay, boolean OnlyOne) {
   setAll(0,0,0);
   
   for (int i=0; i<Count; i++) {
@@ -232,7 +396,7 @@ void Twinkle(byte red, byte green, byte blue, int Count, int SpeedDelay, boolean
   delay(SpeedDelay);
 }
 
-void TwinkleRandom(int Count, int SpeedDelay, boolean OnlyOne) {
+void effect::twinkleRandom(int Count, int SpeedDelay, boolean OnlyOne) {
   setAll(0,0,0);
   
   for (int i=0; i<Count; i++) {
@@ -247,7 +411,7 @@ void TwinkleRandom(int Count, int SpeedDelay, boolean OnlyOne) {
   delay(SpeedDelay);
 }
 
-void Sparkle(byte red, byte green, byte blue, int SpeedDelay) {
+void effect::sparkle(uint8_t red, uint8_t green, uint8_t blue, int SpeedDelay) {
   int Pixel = random(NUM_LEDS);
   setPixel(Pixel,red,green,blue);
   showStrip();
@@ -255,7 +419,7 @@ void Sparkle(byte red, byte green, byte blue, int SpeedDelay) {
   setPixel(Pixel,0,0,0);
 }
 
-void SnowSparkle(byte red, byte green, byte blue, int SparkleDelay, int SpeedDelay) {
+void effect::snowSparkle(uint8_t red, uint8_t green, uint8_t blue, int SparkleDelay, int SpeedDelay) {
   setAll(red,green,blue);
   
   int Pixel = random(NUM_LEDS);
@@ -267,7 +431,7 @@ void SnowSparkle(byte red, byte green, byte blue, int SparkleDelay, int SpeedDel
   delay(SpeedDelay);
 }
 
-void RunningLights(byte red, byte green, byte blue, int WaveDelay) {
+void effect::runningLights(uint8_t red, uint8_t green, uint8_t blue, int WaveDelay) {
   int Position=0;
   
   for(int i=0; i<NUM_LEDS*2; i++)
@@ -288,7 +452,7 @@ void RunningLights(byte red, byte green, byte blue, int WaveDelay) {
   }
 }
 
-void colorWipe(byte red, byte green, byte blue, int SpeedDelay) {
+void effect::colorWipe(uint8_t red, uint8_t green, uint8_t blue, int SpeedDelay) {
   for(uint16_t i=0; i<NUM_LEDS; i++) {
       setPixel(i, red, green, blue);
       showStrip();
@@ -296,8 +460,8 @@ void colorWipe(byte red, byte green, byte blue, int SpeedDelay) {
   }
 }
 
-void rainbowCycle(int SpeedDelay) {
-  byte *c;
+void effect::rainbowCycle(int SpeedDelay) {
+  uint8_t *c;
   uint16_t i, j;
 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
@@ -311,8 +475,8 @@ void rainbowCycle(int SpeedDelay) {
 }
 
 // used by rainbowCycle and theaterChaseRainbow
-byte * Wheel(byte WheelPos) {
-  static byte c[3];
+uint8_t effect::wheel(uint8_t WheelPos) {
+  static uint8_t c[3];
   
   if(WheelPos < 85) {
    c[0]=WheelPos * 3;
@@ -333,7 +497,7 @@ byte * Wheel(byte WheelPos) {
   return c;
 }
 
-void theaterChase(byte red, byte green, byte blue, int SpeedDelay) {
+void effect::theaterChase(uint8_t red, uint8_t green, uint8_t blue, int SpeedDelay) {
   for (int j=0; j<10; j++) {  //do 10 cycles of chasing
     for (int q=0; q < 3; q++) {
       for (int i=0; i < NUM_LEDS; i=i+3) {
@@ -350,8 +514,8 @@ void theaterChase(byte red, byte green, byte blue, int SpeedDelay) {
   }
 }
 
-void theaterChaseRainbow(int SpeedDelay) {
-  byte *c;
+void effect::theaterChaseRainbow(int SpeedDelay) {
+  uint8_t *c;
   
   for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
     for (int q=0; q < 3; q++) {
@@ -370,8 +534,8 @@ void theaterChaseRainbow(int SpeedDelay) {
   }
 }
 
-void Fire(int Cooling, int Sparking, int SpeedDelay) {
-  static byte heat[NUM_LEDS];
+void effect::fire(int Cooling, int Sparking, int SpeedDelay) {
+  static uint8_t heat[NUM_LEDS];
   int cooldown;
   
   // Step 1.  Cool down every cell a little
@@ -406,12 +570,12 @@ void Fire(int Cooling, int Sparking, int SpeedDelay) {
   delay(SpeedDelay);
 }
 
-void setPixelHeatColor (int Pixel, byte temperature) {
+void effect::setPixelHeatColor (int Pixel, uint8_t temperature) {
   // Scale 'heat' down from 0-255 to 0-191
-  byte t192 = round((temperature/255.0)*191);
+  uint8_t t192 = round((temperature/255.0)*191);
  
   // calculate ramp up from
-  byte heatramp = t192 & 0x3F; // 0..63
+  uint8_t heatramp = t192 & 0x3F; // 0..63
   heatramp <<= 2; // scale up to 0..252
  
   // figure out which third of the spectrum we're in:
@@ -424,7 +588,7 @@ void setPixelHeatColor (int Pixel, byte temperature) {
   }
 }
 
-void BouncingColoredBalls(int BallCount, byte colors[][3], boolean continuous) {
+void effect::bouncingColoredBalls(int BallCount, uint8_t colors[][3], boolean continuous) {
   float Gravity = -9.81;
   int StartHeight = 1;
   
@@ -482,7 +646,7 @@ void BouncingColoredBalls(int BallCount, byte colors[][3], boolean continuous) {
   }
 }
 
-void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
+void effect::meteorRain(uint8_t red, uint8_t green, uint8_t blue, uint8_t meteorSize, uint8_t meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
   setAll(0,0,0);
   
   for(int i = 0; i < NUM_LEDS+NUM_LEDS; i++) {
@@ -508,12 +672,12 @@ void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTra
 }
 
 // used by meteorrain
-void fadeToBlack(int ledNo, byte fadeValue) {
+void effect::fadeToBlack(int pixel, uint8_t fadeValue) {
     uint32_t oldColor;
     uint8_t r, g, b;
     int value;
     
-    oldColor = strip.getPixelColor(ledNo);
+    oldColor = getPixel(pixel);
     r = (oldColor & 0x00ff0000UL) >> 16;
     g = (oldColor & 0x0000ff00UL) >> 8;
     b = (oldColor & 0x000000ffUL);
@@ -522,5 +686,5 @@ void fadeToBlack(int ledNo, byte fadeValue) {
     g=(g<=10)? 0 : (int) g-(g*fadeValue/256);
     b=(b<=10)? 0 : (int) b-(b*fadeValue/256);
     
-    strip.setPixelColor(ledNo, r,g,b);
+    setPixelColor(pixel, r,g,b);
 }
