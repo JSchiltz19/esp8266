@@ -34,6 +34,7 @@ uint8_t effect::setEffect(uint8_t effect) {
               }
 
     case 1  : {
+                // TODO: find bug in fadeInOut
                 // FadeInOut - Color (red, green. blue)
                 Serial.println("inside Case 1");
                 fadeInOut(0xff, 0x00, 0x00); // red
