@@ -2,7 +2,7 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
 #include "ledDriver.h"
-
+#define BUTTON 2
 //TODO: normalize #defines among files
 
 //TODO: set up class
@@ -10,11 +10,9 @@
 
 class effect{
   public:
+  ledDriver strip;
+  
     effect(){
-
-      ledDriver strip;
-      
-      
     }
     
     uint8_t setEffect(uint8_t effect);
@@ -45,7 +43,7 @@ class effect{
     void runningLights(uint8_t red, uint8_t green, uint8_t blue, int WaveDelay);
     void colorWipe(uint8_t red, uint8_t green, uint8_t blue, int SpeedDelay);
     void rainbowCycle(int SpeedDelay);
-    uint8_t wheel(uint8_t WheelPos);
+    byte * wheel(uint8_t WheelPos);
     void theaterChase(uint8_t red, uint8_t green, uint8_t blue, int SpeedDelay);
     void theaterChaseRainbow(int SpeedDelay);
     void fire(int Cooling, int Sparking, int SpeedDelay);
