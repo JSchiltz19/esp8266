@@ -2,7 +2,7 @@
 #include "effects.h"
 
 //#define NUM_LEDS 100;
-effect ledStrip;
+effect ledStrip = effect(100);
 
 void setup() {
   Serial.begin(115200);
@@ -20,8 +20,6 @@ void loop() {
 
 // #1(fadeInOut)
     Serial.println(i);
-    if(i != 1){
       ledStrip.setEffect(i);
-    }
   }
 }
