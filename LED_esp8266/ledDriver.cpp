@@ -115,7 +115,7 @@ PERIPHS_IO_MUX_MTDO_U     /* 15 - D8
   
   
   
-  ledDriver::ledDriver(int numLeds){
+  ledDriver::ledDriver(int numLeds, int_ledPin) : ledPin(1<<_ledPin){
     //this->numLeds = numLeds;
     if(numLeds > 1000){
       numLeds = 100;
