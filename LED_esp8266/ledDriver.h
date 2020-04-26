@@ -8,7 +8,7 @@
 class ledDriver{
 	public:
 		ledDriver(int numLeds);
-    ~ledDriver();
+        ~ledDriver();
 		void resetLEDArray();
 		void showStrip();
 		void setPixel(int pixel, byte r, byte g,  byte b);
@@ -17,6 +17,7 @@ class ledDriver{
 
 	private:
     int numLeds;
+	const inline int ledPin;
     byte* ledR;
     byte* ledG;
     byte* ledB;
