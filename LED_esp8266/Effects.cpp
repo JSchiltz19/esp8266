@@ -7,7 +7,7 @@
 
 
 
-  effect::effect(int numLeds){
+  effect::effect(int numLeds,int ledPin){
     this->numLeds = numLeds;
     ledDriver strip = ledDriver(numLeds);
   

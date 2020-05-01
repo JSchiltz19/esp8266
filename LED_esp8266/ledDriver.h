@@ -17,7 +17,7 @@ class ledDriver{
 
 	private:
     int numLeds;
-	const inline int ledPin;
+	//  const int ledPin;
     byte* ledR;
     byte* ledG;
     byte* ledB;
