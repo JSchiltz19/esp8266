@@ -17,11 +17,9 @@ class ledDriver{
 		void setAll(byte r, byte g, byte b);
 
 	private:
-<<<<<<< HEAD
     int numLeds;
 	//  const int ledPin;
-=======
->>>>>>> parent of 14fd36c... added dynamic led number
+
     byte* ledR;
     byte* ledG;
     byte* ledB;

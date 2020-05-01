@@ -2,7 +2,7 @@
 #include "effects.h"
 
 //#define NUM_LEDS 100;
-effect ledStrip;
+effect ledStrip = effect(100);
 
 void setup() {
   Serial.begin(115200);

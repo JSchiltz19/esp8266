@@ -12,13 +12,13 @@ class effect{
   
    ledDriver strip = ledDriver(100);
    
-    effect(){
-    }
+    effect(int numLeds);
     
     byte setEffect(byte effect);
     void changeEffect();
     
   private:
+    int numLeds;
     byte selectedEffect = 0;
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void RGBLoop();

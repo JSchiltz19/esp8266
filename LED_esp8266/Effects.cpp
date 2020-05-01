@@ -4,19 +4,12 @@
 
 #define Num_OF_EFFECTS 18
 
-<<<<<<< HEAD
-
-
-
-  effect::effect(int numLeds,int ledPin){
+  effect::effect(int numLeds){
     this->numLeds = numLeds;
     ledDriver strip = ledDriver(numLeds);
   
   }
 
-
-=======
->>>>>>> parent of 14fd36c... added dynamic led number
 byte effect::setEffect(byte effect) { 
 
 //TODO: move to .cpp
