@@ -10,7 +10,7 @@
 class effect{
   public:
   
-   ledDriver strip = ledDriver(100);
+    ledDriver* strip;
    
     effect(int numLeds);
     
