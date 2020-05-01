@@ -1,21 +1,24 @@
+
 #ifndef EFFECTS_H
 #define EFFECTS_H
-
 #include "ledDriver.h"
 #define BUTTON 2
+//TODO: normalize #defines among files
+
+//TODO: set up class
 
 class effect{
   public:
   
-    ledDriver * strip;
-  
-    effect(int numLeds);
+   ledDriver strip = ledDriver(100);
+   
+    effect(){
+    }
     
     byte setEffect(byte effect);
     void changeEffect();
     
   private:
-    int numLeds;
     byte selectedEffect = 0;
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void RGBLoop();

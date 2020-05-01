@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #define LED_PIN 0x8000 //D8
+#define NUM_LEDS 100
 
 class ledDriver{
 	public:
@@ -16,8 +17,11 @@ class ledDriver{
 		void setAll(byte r, byte g, byte b);
 
 	private:
+<<<<<<< HEAD
     int numLeds;
 	//  const int ledPin;
+=======
+>>>>>>> parent of 14fd36c... added dynamic led number
     byte* ledR;
     byte* ledG;
     byte* ledB;
