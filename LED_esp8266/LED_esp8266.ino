@@ -17,11 +17,9 @@ void setup() {
 void loop() { 
   for(int i = 0; i<= 18; i++){
 
-// #1(fadeInOut)
     Serial.println(i);
-    if(i != 1){
       ledStrip.setEffect(i);
     }
-    ledStrip.resetEffect();
-  }
+  ledStrip.resetEffect();
 }
+

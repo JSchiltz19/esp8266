@@ -12,8 +12,6 @@
 
 byte effect::setEffect(byte effect) { 
 
-//TODO: move to .cpp
-//TODO: put inside of some loop
   selectedEffect = effect;
   
   //EEPROM.get(0,selectedEffect); 
@@ -33,7 +31,6 @@ byte effect::setEffect(byte effect) {
               }
 
     case 1  : {
-                // TODO: find bug in fadeInOut
                 // FadeInOut - Color (red, green. blue)
                // Serial.println("inside Case 1");
                 fadeInOut(0xff, 0x00, 0x00); // red
@@ -44,7 +41,7 @@ byte effect::setEffect(byte effect) {
               
     case 2  : {
                 // Strobe - Color (red, green, blue), number of flashes, flash speed, end pause
-                strobe(0xff, 0xff, 0xff, 10, 100, 1000);
+                strobe(0xff, 0xff, 0xff, 10, 50, 1000);
                 break;
               }
 
@@ -207,7 +204,7 @@ void effect::RGBLoop(){
 void effect::fadeInOut(byte red, byte green, byte blue){
   byte r, g, b;
       
-  for(int k = 0; k < 256; k=k+1) { 
+  for(byte k = 0; k < 255; k=k+1) { 
     r = (k/256.0)*red;
     g = (k/256.0)*green;
     b = (k/256.0)*blue;
@@ -216,13 +213,13 @@ void effect::fadeInOut(byte red, byte green, byte blue){
     delay(1);
   }
      
-  for(int k = 255; k >= 0; k=k-2) {
+  for(byte k = 255; k > 0; k=k-1) {
     r = (k/256.0)*red;
     g = (k/256.0)*green;
     b = (k/256.0)*blue;
     strip->setAll(r,g,b);
     strip->showStrip();
-     delay(1);
+    delay(1);
   }
 }
 
@@ -549,7 +546,7 @@ void effect::theaterChaseRainbow(int SpeedDelay) {
 }
 
 void effect::fire(int Cooling, int Sparking, int SpeedDelay) {
-  static byte* heat = new byte[numLeds]; //#TODO:make dynamic
+  static byte* heat = new byte[numLeds];
   int cooldown;
   
   // Step 1.  Cool down every cell a little
