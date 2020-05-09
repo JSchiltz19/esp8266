@@ -4,9 +4,9 @@
 
 #define Num_OF_EFFECTS 18
 
-  effect::effect(int _numLeds){
+  effect::effect(int _numLeds, int _ledPin){
     this->numLeds = _numLeds;
-    strip = new ledDriver(_numLeds);
+    strip = new ledDriver(_numLeds, _ledPin);
   
   }
 
@@ -23,12 +23,11 @@ byte effect::setEffect(byte effect) {
     EEPROM.put(0,0); 
   } 
   */
-  Serial.println("\n\nBeginning Case \n\n");
+ // Serial.println("\n\nBeginning Case \n\n");
   switch(selectedEffect) {
     
     case 0  : {
                 // RGBLoop - no parameters
-                Serial.println("inside Case 0");
                 RGBLoop();
                 break;
               }
@@ -36,7 +35,7 @@ byte effect::setEffect(byte effect) {
     case 1  : {
                 // TODO: find bug in fadeInOut
                 // FadeInOut - Color (red, green. blue)
-                Serial.println("inside Case 1");
+               // Serial.println("inside Case 1");
                 fadeInOut(0xff, 0x00, 0x00); // red
                 fadeInOut(0xff, 0xff, 0xff); // white 
                 fadeInOut(0x00, 0x00, 0xff); // blue
@@ -45,7 +44,7 @@ byte effect::setEffect(byte effect) {
               
     case 2  : {
                 // Strobe - Color (red, green, blue), number of flashes, flash speed, end pause
-                strobe(0xff, 0xff, 0xff, 10, 50, 1000);
+                strobe(0xff, 0xff, 0xff, 10, 100, 1000);
                 break;
               }
 
@@ -164,7 +163,7 @@ byte effect::setEffect(byte effect) {
                 break;
               }
   }
-  Serial.println("\n\nend\n\n");
+ // Serial.println("\n\nend\n\n");
   return selectedEffect;
 }
 
@@ -697,4 +696,8 @@ void effect::fadeToBlack(int pixel, byte fadeValue) {
     b=(b<=10)? 0 : (int) b-(b*fadeValue/256);
     
     strip->setPixel(pixel, r,g,b);
+}
+
+void effect::resetEffect(){
+  strip->reset();
 }

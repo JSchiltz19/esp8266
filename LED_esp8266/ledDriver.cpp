@@ -52,7 +52,7 @@ PERIPHS_IO_MUX_MTDO_U     /* 15 - D8
   btime = asm_ccount();
   etime = asm_ccount();
   Serial.print("Number of Ticks = ");
-  total_time_to_run =((uint32_t)(etime - btime));
+  total_time_to_run =((uint32_t)(etime - btime-1));
   Serial.println(total_time_to_run);
   delay(100);
   // 1 tick = 0.0125 us
@@ -114,11 +114,9 @@ PERIPHS_IO_MUX_MTDO_U     /* 15 - D8
 //byte ledG[numLeds] = {128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,1280,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   
   
-  
-  //ledDriver::ledDriver(int numLeds, int _ledPin) : ledPin(1<<_ledPin){
-  ledDriver::ledDriver(int _numLeds){
+  ledDriver::ledDriver(int _numLeds, int _ledPin) : ledPin(1 << _ledPin){
     //this->numLeds = numLeds;
-    if(_numLeds > 1000){
+    if(_numLeds > 1000 || _numLeds < 0){
       _numLeds = 100;
       }
     ledR = new byte[_numLeds];
@@ -178,19 +176,21 @@ void ledDriver::setAll(byte r, byte g, byte b){
 }
 
 
+
 void ledDriver::writeStrip(byte Color){
+
   noInterrupts();                         // disable interrupts to maintain timing
   for(int i = 7; i >= 0; i--){            // loop through byte
 	bool temp = bitRead(Color,i);         // get MSB and left shift by 1
 
 	if(temp == 0){
 	  // 0 code
-	  
-	  GPIO_REG_WRITE(GPIO_OUT_W1TS_ADDRESS, LED_PIN);      // set pin 5 HIGH and all others LOW   2 Ticks
-	  
+
+	  GPIO_REG_WRITE(GPIO_OUT_W1TS_ADDRESS, ledPin);      // set pin 5 HIGH and all others LOW   2 Ticks
+
 	  delay24Ticks;      //24 tics = .3 us
-	  
-	  GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, LED_PIN);      // set all pins LOW   2 Ticks
+
+	  GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, ledPin);      // set all pins LOW   2 Ticks
 
 	  delay72Ticks;   //72 tics = .9 us
  
@@ -199,23 +199,24 @@ void ledDriver::writeStrip(byte Color){
 	  // 1 code
 	  //GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, GPIO_REG_READ(GPIO_OUT_ADDRESS) | 0x0800); use if other pins are being used 
 	  
-	  GPIO_REG_WRITE(GPIO_OUT_W1TS_ADDRESS, LED_PIN);    // can use this instead of directly putting in hex 1 << GPIO_pin number
+	  GPIO_REG_WRITE(GPIO_OUT_W1TS_ADDRESS, ledPin);    // can use this instead of directly putting in hex 1 << GPIO_pin number
 	  
 	  delay72Ticks; //72 tics = .9 us
 	  
-	  GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, LED_PIN);
+	  GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, ledPin);
 
 	  delay24Ticks;; //24 tics = .3 us
 	}
   }
   interrupts();                           // renable interrupts 
+  
 
 }
 
 
 void ledDriver::reset(){
 	// reset code
-	GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, GPIO_REG_READ(GPIO_OUT_ADDRESS) | LED_PIN); //only sets pin 5 LOW
+	GPIO_REG_WRITE(GPIO_OUT_W1TC_ADDRESS, GPIO_REG_READ(GPIO_OUT_ADDRESS) | ledPin); //only sets pin 5 LOW
 	//delayMicroseconds(80);      //has 51 tick overhead
 	delayMicroseconds(79);      //has 20 ticks behind
 }

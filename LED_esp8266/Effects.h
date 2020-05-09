@@ -12,11 +12,11 @@ class effect{
   
     ledDriver* strip;
    
-    effect(int numLeds);
+    effect(int numLeds, int ledPin);
     
     byte setEffect(byte effect);
     void changeEffect();
-    
+    void resetEffect();
   private:
     int numLeds;
     byte selectedEffect = 0;
