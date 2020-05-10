@@ -17,6 +17,7 @@ class effect{
     byte setEffect(byte effect);
     void changeEffect();
     void resetEffect();
+    void setAll(byte r, byte g, byte b);
   private:
     int numLeds;
     byte selectedEffect = 0;
@@ -38,15 +39,15 @@ class effect{
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void twinkle(byte red, byte green, byte blue, int Count, int SpeedDelay, boolean OnlyOne);
     void twinkleRandom(int Count, int SpeedDelay, boolean OnlyOne);
-    void sparkle(byte red, byte green, byte blue, int SpeedDelay);
-    void snowSparkle(byte red, byte green, byte blue, int SparkleDelay, int SpeedDelay);
+    void sparkle(byte red, byte green, byte blue, int SpeedDelay, int count);
+    void snowSparkle(byte red, byte green, byte blue, int SparkleDelay, int SpeedDelay, int count);
     void runningLights(byte red, byte green, byte blue, int WaveDelay);
     void colorWipe(byte red, byte green, byte blue, int SpeedDelay);
     void rainbowCycle(int SpeedDelay);
     byte * wheel(byte WheelPos);
     void theaterChase(byte red, byte green, byte blue, int SpeedDelay);
     void theaterChaseRainbow(int SpeedDelay);
-    void fire(int Cooling, int Sparking, int SpeedDelay);
+    void fire(int Cooling, int Sparking, int SpeedDelay, int count);
     void setPixelHeatColor (int Pixel, byte temperature);
     void bouncingColoredBalls(int BallCount, byte colors[][3], boolean continuous);
     void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay);

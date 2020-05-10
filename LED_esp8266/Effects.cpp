@@ -72,25 +72,26 @@ byte effect::setEffect(byte effect) {
               
     case 6  : {
                 // Twinkle - Color (red, green, blue), count, speed delay, only one twinkle (true/false) 
-                twinkle(0xff, 0x00, 0x00, 10, 100, false);
+                twinkle(0xff, 0x00, 0x00, numLeds, 100, false);
+                twinkle(0x00, 0x00, 0x00, numLeds, 100, false);
                 break;
               }
               
     case 7  : { 
                 // TwinkleRandom - twinkle count, speed delay, only one (true/false)
-                twinkleRandom(20, 100, false);
+                twinkleRandom(numLeds*2, 100, false);
                 break;
               }
               
     case 8  : {
-                // Sparkle - Color (red, green, blue), speed delay
-                sparkle(0xff, 0xff, 0xff, 0);
+                // Sparkle - Color (red, green, blue), speed delay, count
+                sparkle(0xff, 0xff, 0xff, 10, numLeds * 2);
                 break;
               }
                
-    case 9  : {
-                // SnowSparkle - Color (red, green, blue), sparkle delay, speed delay
-                snowSparkle(0x10, 0x10, 0x10, 20, random(100,1000));
+    case 9  : { 
+                // SnowSparkle - Color (red, green, blue), sparkle delay, speed delay, count
+                snowSparkle(0x5A, 0x5A, 0x5A, 20, random(100,1000), 50);
                 break;
               }
               
@@ -129,7 +130,7 @@ byte effect::setEffect(byte effect) {
 
     case 15 : {
                 // Fire - Cooling rate, Sparking rate, speed delay
-                fire(55,120,15);
+                fire(55,120,15, numLeds);
                 break;
               }
 
@@ -422,24 +423,31 @@ void effect::twinkleRandom(int Count, int SpeedDelay, boolean OnlyOne) {
   delay(SpeedDelay);
 }
 
-void effect::sparkle(byte red, byte green, byte blue, int SpeedDelay) {
-  int Pixel = random(numLeds);
-  strip->setPixel(Pixel,red,green,blue);
-  strip->showStrip();
-  delay(SpeedDelay);
-  strip->setPixel(Pixel,0,0,0);
+void effect::sparkle(byte red, byte green, byte blue, int SpeedDelay, int count) {
+
+  for(int i = 0; i < count; i++){
+    int Pixel = random(numLeds);
+    strip->setPixel(Pixel,red,green,blue);
+    strip->showStrip();
+    delay(SpeedDelay);
+    strip->setPixel(Pixel,0,0,0);
+  }
 }
 
-void effect::snowSparkle(byte red, byte green, byte blue, int SparkleDelay, int SpeedDelay) {
+void effect::snowSparkle(byte red, byte green, byte blue, int SparkleDelay, int SpeedDelay, int count) {
   strip->setAll(red,green,blue);
   
-  int Pixel = random(numLeds);
-  strip->setPixel(Pixel,0xff,0xff,0xff);
-  strip->showStrip();
-  delay(SparkleDelay);
-  strip->setPixel(Pixel,red,green,blue);
-  strip->showStrip();
-  delay(SpeedDelay);
+  for(int i = 0; i < count; i++){
+    int Pixel = random(numLeds);
+    
+    strip->setPixel(Pixel,0xff,0xff,0xff);
+    strip->showStrip();
+    delay(SparkleDelay);
+    strip->setPixel(Pixel,red,green,blue);
+    strip->showStrip();
+    delay(SpeedDelay);
+  }
+  
 }
 
 void effect::runningLights(byte red, byte green, byte blue, int WaveDelay) {
@@ -545,7 +553,10 @@ void effect::theaterChaseRainbow(int SpeedDelay) {
   }
 }
 
-void effect::fire(int Cooling, int Sparking, int SpeedDelay) {
+void effect::fire(int Cooling, int Sparking, int SpeedDelay, int count) {
+
+for(int i = 0; i < count; i++){
+
   static byte* heat = new byte[numLeds];
   int cooldown;
   
@@ -579,6 +590,7 @@ void effect::fire(int Cooling, int Sparking, int SpeedDelay) {
 
   strip->showStrip();
   delay(SpeedDelay);
+  }
 }
 
 void effect::setPixelHeatColor (int Pixel, byte temperature) {
@@ -697,4 +709,7 @@ void effect::fadeToBlack(int pixel, byte fadeValue) {
 
 void effect::resetEffect(){
   strip->reset();
+}
+void effect::setAll(byte r, byte g, byte b){
+  strip->setAll(r,g,b);
 }

@@ -169,9 +169,9 @@ uint32_t ledDriver::getPixel(int pixel){
 
 void ledDriver::setAll(byte r, byte g, byte b){
   for(int pixel = numLeds-1; pixel >= 0; pixel--){
-	ledR[pixel] = r;
-	ledG[pixel] = g;
-	ledB[pixel] = b;
+  ledR[pixel] = pgm_read_byte(&gamma8[r]);
+  ledG[pixel] = pgm_read_byte(&gamma8[g]);
+  ledB[pixel] = pgm_read_byte(&gamma8[b]);
   } 
 }
 

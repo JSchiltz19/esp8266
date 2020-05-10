@@ -18,8 +18,10 @@ void loop() {
   for(int i = 0; i<= 18; i++){
 
     Serial.println(i);
-      ledStrip.setEffect(i);
+      ledStrip.setEffect(15);
+      ledStrip.setAll(0,0,0);
+ //           ledStrip.setEffect(9);
     }
-  ledStrip.resetEffect();
+
 }
 
