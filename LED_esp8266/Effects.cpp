@@ -12,6 +12,9 @@
 
 byte effect::setEffect(byte effect) { 
 
+  if(effect > 18){
+    effect = 0;
+  }
   selectedEffect = effect;
   
   //EEPROM.get(0,selectedEffect); 
@@ -22,6 +25,7 @@ byte effect::setEffect(byte effect) {
   } 
   */
  // Serial.println("\n\nBeginning Case \n\n");
+ 
   switch(selectedEffect) {
     
     case 0  : {
@@ -85,13 +89,13 @@ byte effect::setEffect(byte effect) {
               
     case 8  : {
                 // Sparkle - Color (red, green, blue), speed delay, count
-                sparkle(0xff, 0xff, 0xff, 10, numLeds * 2);
+                sparkle(0xff, 0xff, 0xff, 10, 2);
                 break;
               }
                
     case 9  : { 
                 // SnowSparkle - Color (red, green, blue), sparkle delay, speed delay, count
-                snowSparkle(0x5A, 0x5A, 0x5A, 20, random(100,1000), 50);
+                snowSparkle(0x5A, 0x5A, 0x5A, 20, random(100,1000), 2);
                 break;
               }
               
@@ -163,6 +167,10 @@ byte effect::setEffect(byte effect) {
   }
  // Serial.println("\n\nend\n\n");
   return selectedEffect;
+}
+
+byte effect::getEffect(){
+return selectedEffect;
 }
 
 void effect::changeEffect() {

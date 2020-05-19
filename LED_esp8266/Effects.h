@@ -15,6 +15,7 @@ class effect{
     effect(int numLeds, int ledPin);
     
     byte setEffect(byte effect);
+    byte getEffect();
     void changeEffect();
     void resetEffect();
     void setAll(byte r, byte g, byte b);
