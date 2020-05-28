@@ -1,14 +1,138 @@
 
 #include "effects.h"
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
 
-ESP8266WebServer webServer(80);
+#include <EmbAJAX.h>
+#include <EmbAJAXValidatingTextInput.h> // Fancier text input in a separate header file
+#include <EmbAJAXScriptedSpan.h>
+
+#include <ESP8266HTTPUpdateServer.h>
 ESP8266HTTPUpdateServer webUpdater;
 
+// Set up web server, and register it with EmbAJAX. Note: EmbAJAXOutputDriverWebServerClass is a
+// convenience #define to allow using the same example code across platforms
+EmbAJAXOutputDriverWebServerClass server(80);
+EmbAJAXOutputDriver driver(&server);
 
+#define BUFLEN 30
+
+EmbAJAXCheckButton check("check", "Some option");
+EmbAJAXMutableSpan check_d("check_d");
+
+const char* radio_opts[] = {"Option1", "Option2", "Option3"};
+EmbAJAXRadioGroup<3> radio("radio", radio_opts);
+EmbAJAXMutableSpan radio_d("radio_d");
+
+EmbAJAXOptionSelect<3> optionselect("optionselect", radio_opts);
+EmbAJAXMutableSpan optionselect_d("optionselect_d");
+
+EmbAJAXSlider slider("slider", 0, 1000, 500);
+EmbAJAXMutableSpan slider_d("slider_d");
+char slider_d_buf[BUFLEN];
+
+EmbAJAXColorPicker color("color", 0, 255, 255);
+EmbAJAXMutableSpan color_d("color_d");
+char color_d_buf[BUFLEN];
+
+EmbAJAXTextInput<BUFLEN> text("text");  // Text input, width BUFLEN
+EmbAJAXMutableSpan text_d("text_d");
+char text_d_buf[BUFLEN];
+
+EmbAJAXValidatingTextInput<16> valtext("valtext");
+EmbAJAXMutableSpan valtext_d("valtext_d");
+char valtext_d_buf[BUFLEN];
+
+int button_count = 0;
+void buttonPressed(EmbAJAXPushButton*) { button_count++; }
+EmbAJAXPushButton button("button", "I can count", buttonPressed);
+EmbAJAXMutableSpan button_d("button_d");
+char button_d_buf[BUFLEN];
+
+EmbAJAXMomentaryButton m_button("m_button", "Press and hold");
+EmbAJAXMutableSpan m_button_d("m_button_d");
+
+EmbAJAXScriptedSpan m_script_s("m_script_s", "this.receiveValue = function(value) { this.innerHTML = value + ' + 1 = ' + (Number(value)+1); };");
+
+EmbAJAXStatic nextCell("</td><td>&nbsp;</td><td><b>");
+EmbAJAXStatic nextRow("</b></td></tr><tr><td>");
+
+// Define a page (named "page") with our elements of interest, above, interspersed by some uninteresting
+// static HTML. Note: MAKE_EmbAJAXPage is just a convenience macro around the EmbAJAXPage<>-class.
+MAKE_EmbAJAXPage(page, "RGB Strip Controler", "",
+  new EmbAJAXStatic("<style>\n"
+  ".footer {position: fixed; left: 0; bottom: 0; width: 100%; background-color: red; color: white; text-align: center; }\n"
+  "</style>"),
+    new EmbAJAXStatic("<center><table cellpadding=\"10\"><tr><td>"),
+    /*
+    &check,
+    &nextCell,  // Static elements can safely be inserted into the same page more than once!
+    &check_d,
+    &nextRow,
+
+    &radio,
+    &nextCell,
+    &radio_d,
+    &nextRow,
+
+    &optionselect,
+    &nextCell,
+    &optionselect_d,
+    &nextRow,
+    
+    &slider,
+    &nextCell,
+    &slider_d,
+    &nextRow,
+*/  
+    &nextRow,
+    &color,
+    &nextCell,
+    &color_d,
+    &nextRow,
+/*
+    &text,
+    &nextCell,
+    &text_d,
+    &nextRow,
+
+    &valtext,
+    &nextCell,
+    &valtext_d,
+    &nextRow,
+
+    &button,
+    &nextCell,
+    &button_d,
+    &nextRow,
+
+    &m_button,
+    &nextCell,
+    &m_button_d,
+    &nextRow,
+
+    new EmbAJAXStatic("A client side script:"),
+    &nextCell,
+    &m_script_s,
+    &nextRow,
+    */
+    /*
+    &nextRow,
+    new EmbAJAXStatic("Server status:"),
+    &nextCell,
+    new EmbAJAXConnectionIndicator(),
+    new EmbAJAXStatic("</b></td></tr></table></center>"),
+    */
+
+    
+    
+    
+    new EmbAJAXStatic("<div class=\"footer\">\n"),
+    //"<p>Footer</p>\n"
+    new EmbAJAXStatic("Server status:"),
+    new EmbAJAXConnectionIndicator(),
+    new EmbAJAXStatic("</div>")
+)
 effect ledStrip = effect(100, D8);
+
 
 void setup() {
   Serial.begin(115200);
@@ -34,23 +158,26 @@ void setup() {
   WiFi.softAP(ssid.c_str(), pass.c_str());
   
 //  http://192.168.4.1/update
-//  http://192.168.4.1/LED
-//  http://192.168.4.1/
+//  http://192.168.4.1/LED_button
+//  http://192.168.4.1/Slider
   
 
   /*
-  webServer.on("/", [](){
-    webServer.send(200, "text/plain", "Successfullly wifi updated");
+  server.on("/", [](){
+    server.send(200, "text/plain", "Successfullly wifi updated");
   });
-  */
+*/
+  webUpdater.setup(&server);
+  
+  driver.installPage(&page, "/", updateUI);
+  
+  server.begin();
+  
+  valtext.setPlaceholder("192.168.1.1");
+  valtext.setPattern("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
 
-  webServer.on("/LED_button", HTTP_GET, handleLED_button);     // Call the 'handleLED_button' function when a client requests URI "/LED_button"
-  webServer.on("/LED_push", HTTP_POST, handleLED_push);       // Call the 'handleLED_push' function when a POST request is made to URI "/LED_push"
-  webServer.onNotFound(handleNotFound);
-  
-  webUpdater.setup(&webServer);
-  webServer.begin();
-  
+  updateUI(); // init displays
+
   ledStrip.setEffect(0);
 }
 
@@ -58,26 +185,28 @@ void setup() {
 void loop() { 
 /*
   for(int i = 0; i < 10; i ++){
-    webServer.handleClient();
+    server.handleClient();
     delay(1);
   }    
   ledStrip.setEffect(ledStrip.getEffect());
   ledStrip.setAll(0,0,0);
   */
-  webServer.handleClient();
+ // server.handleClient();
+     // handle network. loopHook() simply calls server.handleClient(), in most but not all server implementations.
+  driver.loopHook();
 }
 
-void handleLED_button() {                         // When URI / is requested, send a web page with a button to toggle the LED
-  webServer.send(200, "text/html", "<form action=\"/LED_push\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
-}
-
-void handleLED_push() {                          // If a POST request is made to URI /LED_push
-
-  ledStrip.setEffect(ledStrip.getEffect + 1);           // Change the state of the LED
-  webServer.sendHeader("Location","/LED_button");       // Add a header to respond with a new location for the browser to go to the home page again
-  webServer.send(303);                                  // Send it back to the browser with an HTTP status 303 (See Other) to redirect
-}
-
-void handleNotFound(){
-  webServer.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+void updateUI() {
+    // Update UI. Note that you could simply do this inside the loop. However,
+    // placing it here makes the client UI more responsive (try it).
+    check_d.setValue(check.isChecked() ? "checked" : "not checked");
+    radio_d.setValue(radio_opts[radio.selectedOption()]);
+    optionselect_d.setValue(radio_opts[optionselect.selectedOption()]);
+    slider_d.setValue(itoa(slider.intValue(), slider_d_buf, 10));
+    color_d.setValue(strncpy(color_d_buf, color.value(), BUFLEN));  // r, g, b, are also available, numerically.
+    text_d.setValue(strncpy(text_d_buf, text.value(), BUFLEN));
+    valtext_d.setValue(strncpy(valtext_d_buf, valtext.value(), BUFLEN));
+    button_d.setValue(itoa(button_count, button_d_buf, 10));
+    m_button_d.setValue((m_button.status() == EmbAJAXMomentaryButton::Pressed) ? "pressed" : "not pressed");
+    m_script_s.setValue(button_d_buf);
 }
