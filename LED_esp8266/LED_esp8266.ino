@@ -178,11 +178,12 @@ void setup() {
 
   updateUI(); // init displays
 
-  ledStrip.setEffect(0);
+  ledStrip.setEffect(12);
 }
 
 
 void loop() { 
+//ledStrip.setEffect(12);
 /*
   for(int i = 0; i < 10; i ++){
     server.handleClient();
